@@ -1,0 +1,26 @@
+{
+  "name": "bopper",
+  "version": "0.0.0",
+  "description": "Provides a streaming clock source for scheduling Web Audio events rhythmically",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mmckegg/bopper.git"
+  },
+  "keywords": [
+    "midi",
+    "clock",
+    "rhythm",
+    "beat",
+    "bar",
+    "web audio"
+  ],
+  "dependencies": {
+    "through": "~2.3.4"
+  },
+  "author": "Matt McKegg",
+  "license": "MIT"
+}
