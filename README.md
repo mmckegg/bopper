@@ -6,7 +6,7 @@ A streaming clock source for scheduling Web Audio events rhythmically.
 ## Install
 
 ```bash
-$ npm install tap-tempo
+$ npm install bopper
 ```
 
 ## Example
@@ -48,8 +48,8 @@ bopper.on('data', function(schedule){
 function play(at, duration){
   var oscillator = audioContext.createOscillator()
   oscillator.connect(audioContext.destination)
-  oscillator.noteOn(at)
-  oscillator.noteOff(at+duration)
+  oscillator.start(at)
+  oscillator.stop(at+duration)
 }
 
 bopper.setTempo(120)

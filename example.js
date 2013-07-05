@@ -45,8 +45,8 @@ bopper.on('data', function(schedule){
 function play(at, duration){
   var oscillator = audioContext.createOscillator()
   oscillator.connect(audioContext.destination)
-  oscillator.noteOn(at)
-  oscillator.noteOff(at+duration)
+  oscillator.start(at)
+  oscillator.stop(at+duration)
 }
 
 bopper.setTempo(120)
