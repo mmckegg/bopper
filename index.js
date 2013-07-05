@@ -3,9 +3,10 @@ var Through = require('through')
 module.exports = function(audioContext){
 
   var bopper = Through()
+  var bpm = 120
 
   bopper.getPositionAt = function(time){
-    var position = nextPosition - ((positionTime - time) * increment)
+    var position = nextPosition - ((positionTime - time) * increment) - increment
     return position
   }
 
@@ -17,14 +18,31 @@ module.exports = function(audioContext){
     var bps = tempo/60
     beatTime = 60/tempo
     increment = bps * cycleLength
+
+    bpm = tempo
+  }
+
+  bopper.setSpeed = function(multiplier){
+    multiplier = multiplier || 0
+
+    var tempo = bpm * multiplier
+    var bps = tempo/60
+    beatTime = 60/tempo
+    increment = bps * cycleLength
   }
 
   bopper.isPlaying = function(){
     return playing
   }
 
-  bopper.restart = function(){
-    nextPosition = 0
+  bopper.restart = function(mod){
+    if (mod){
+      var position = nextPosition
+      var bar = Math.floor(position / mod)
+      nextPosition = (bar * mod) + mod
+    } else {
+      nextPosition = 0
+    }
     playing = true
   }
 
@@ -68,6 +86,10 @@ module.exports = function(audioContext){
         beatTime: beatTime 
       })
 
+      var beat = Math.floor(position)
+      if (position - beat < increment){
+        bopper.emit('beat', beat)
+      }
     }
 
   } 
