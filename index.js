@@ -16,7 +16,7 @@ module.exports = function(audioContext){
 
   bopper.setTempo = function(tempo){
     var bps = tempo/60
-    beatTime = 60/tempo
+    beatDuration = 60/tempo
     increment = bps * cycleLength
 
     bpm = tempo
@@ -27,7 +27,7 @@ module.exports = function(audioContext){
 
     var tempo = bpm * multiplier
     var bps = tempo/60
-    beatTime = 60/tempo
+    beatDuration = 60/tempo
     increment = bps * cycleLength
   }
 
@@ -83,7 +83,7 @@ module.exports = function(audioContext){
         from: position,
         to: position + increment,
         time: audioContext.currentTime + cycleLength*2,
-        beatTime: beatTime 
+        beatDuration: beatDuration 
       })
 
       var beat = Math.floor(position)
