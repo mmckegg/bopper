@@ -6,7 +6,7 @@ module.exports = function(audioContext){
   var bpm = 120
 
   bopper.getPositionAt = function(time){
-    var position = nextPosition - ((positionTime - time) * increment) - increment
+    var position = nextPosition - ((positionTime - time) * increment) - (increment*1.5)
     return position
   }
 
@@ -70,19 +70,20 @@ module.exports = function(audioContext){
   var nextPosition = 0
   var positionTime = 0
 
-  processor.onaudioprocess = function(e){
+  var lastTime = 0
 
+  function tick(time, count){
     if (playing){
 
       var position = nextPosition
-      nextPosition += increment
+      nextPosition += increment*count
 
-      positionTime = audioContext.currentTime + cycleLength*2
+      positionTime = time + cycleLength*2
 
       bopper.queue({
         from: position,
-        to: position + increment,
-        time: audioContext.currentTime + cycleLength*2,
+        to: position + (increment*count),
+        time: time + cycleLength*2,
         beatDuration: beatDuration 
       })
 
@@ -91,8 +92,16 @@ module.exports = function(audioContext){
         bopper.emit('beat', beat)
       }
     }
+  }
 
+  processor.onaudioprocess = function(e){
+    var pendingFrames = Math.floor((audioContext.currentTime - lastTime) / cycleLength) || 1
+    lastTime = audioContext.currentTime
+
+    var offset = (pendingFrames - 1) * cycleLength
+    tick(audioContext.currentTime - offset, pendingFrames)
   } 
+  
   bopper.processor = processor
   processor.connect(audioContext.destination)
 
