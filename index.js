@@ -6,7 +6,7 @@ module.exports = function(audioContext){
   var bpm = 120
 
   bopper.getPositionAt = function(time){
-    var position = nextPosition - ((positionTime - time) * increment) - (increment*1.5)
+    var position = lastPosition - ((lastTime - time) * increment) - (increment*1.5)
     return position
   }
 
@@ -55,7 +55,7 @@ module.exports = function(audioContext){
   }
 
 
-  var processor = audioContext.createJavaScriptNode(1024, 1, 1)
+  var processor = audioContext.createJavaScriptNode(512, 1, 1)
   var cycleLength = (1 / audioContext.sampleRate) * processor.bufferSize
 
 
@@ -69,37 +69,37 @@ module.exports = function(audioContext){
   // set by process
   var nextPosition = 0
   var positionTime = 0
+  var lastFrame = -1
 
-  var lastTime = 0
 
-  function tick(time, count){
-    if (playing){
-
-      var position = nextPosition
-      nextPosition += increment*count
-
-      positionTime = time + cycleLength*2
-
-      bopper.queue({
-        from: position,
-        to: position + (increment*count),
-        time: time + cycleLength*2,
-        beatDuration: beatDuration 
-      })
-
-      var beat = Math.floor(position)
-      if (position - beat < increment){
-        bopper.emit('beat', beat)
-      }
-    }
+  function schedule(time, from, to){
+    bopper.queue({
+      from: from,
+      to: to,
+      time: time,
+      beatDuration: beatDuration 
+    })
   }
 
-  processor.onaudioprocess = function(e){
-    var pendingFrames = Math.floor((audioContext.currentTime - lastTime) / cycleLength) || 1
-    lastTime = audioContext.currentTime
+  function getBeatsFromTime(time){
+    return time / beatDuration
+  }
 
-    var offset = (pendingFrames - 1) * cycleLength
-    tick(audioContext.currentTime - offset, pendingFrames)
+  var lastTime = 0
+  var lastPosition = 0
+  var offset = 0
+
+  processor.onaudioprocess = function(e){
+    var toTime = audioContext.currentTime
+    var length = getBeatsFromTime(toTime - lastTime)
+
+    if (playing){
+      var position = lastPosition + length
+      schedule(lastTime + (cycleLength*4), lastPosition, position)
+      lastPosition = position
+    }
+
+    lastTime = toTime
   } 
   
   bopper.processor = processor
