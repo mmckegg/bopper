@@ -6,7 +6,7 @@ module.exports = function(audioContext){
   var bpm = 120
 
   bopper.getPositionAt = function(time){
-    var position = lastPosition - ((lastTime - time) * increment) - (increment*1.5)
+    var position = lastPosition - ((lastTime - time) * increment) - (increment*4)
     return position
   }
 
