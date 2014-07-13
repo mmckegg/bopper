@@ -20,6 +20,11 @@ module.exports = function(audioContext){
     increment = bps * cycleLength
 
     bpm = tempo
+    bopper.emit('tempo', bpm)
+  }
+
+  bopper.getTempo = function(){
+    return bpm
   }
 
   bopper.setSpeed = function(multiplier){
