@@ -10,6 +10,13 @@ module.exports = function(audioContext){
     return position
   }
 
+  bopper.getTimeAt = function(position){
+    var currentPosition = bopper.getCurrentPosition()
+    var positionOffset = currentPosition - position
+    return audioContext.currentTime - (positionOffset * beatDuration)
+  }
+
+
   bopper.getCurrentPosition = function(){
     return bopper.getPositionAt(audioContext.currentTime)
   }
@@ -82,6 +89,7 @@ module.exports = function(audioContext){
       from: from,
       to: to,
       time: time,
+      duration: (to - from) * beatDuration,
       beatDuration: beatDuration 
     })
   }
