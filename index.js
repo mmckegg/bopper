@@ -67,7 +67,7 @@ module.exports = function(audioContext){
   }
 
 
-  var processor = audioContext.createJavaScriptNode(512, 1, 1)
+  var processor = audioContext.createScriptProcessor(512, 1, 1)
   var cycleLength = (1 / audioContext.sampleRate) * processor.bufferSize
 
 
@@ -90,7 +90,7 @@ module.exports = function(audioContext){
       to: to,
       time: time,
       duration: (to - from) * beatDuration,
-      beatDuration: beatDuration 
+      beatDuration: beatDuration
     })
   }
 
@@ -113,8 +113,8 @@ module.exports = function(audioContext){
     }
 
     lastTime = toTime
-  } 
-  
+  }
+
   bopper.processor = processor
   processor.connect(audioContext.destination)
 
