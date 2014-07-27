@@ -1,4 +1,4 @@
-var audioContext = new webkitAudioContext()
+var audioContext = new AudioContext()
 var bopper = require('./')(audioContext)
 
 var playback = [

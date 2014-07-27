@@ -12,7 +12,7 @@ $ npm install bopper
 ## Example
 
 ```js
-var audioContext = new webkitAudioContext()
+var audioContext = new AudioContext()
 var bopper = require('bopper')(audioContext)
 
 var playback = [
