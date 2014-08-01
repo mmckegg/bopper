@@ -1,124 +1,124 @@
-var Through = require('through')
+var Readable = require('stream').Readable
+var inherits = require('util').inherits
 
-module.exports = function(audioContext){
+module.exports = Bopper
 
-  var bopper = Through()
-  var bpm = 120
-
-  bopper.getPositionAt = function(time){
-    var position = lastPosition - ((lastTime - time) * increment) - (increment*4)
-    return position
+function Bopper(audioContext){
+  if (!(this instanceof Bopper)){
+    return new Bopper(audioContext)
   }
 
-  bopper.getTimeAt = function(position){
-    var currentPosition = bopper.getCurrentPosition()
-    var positionOffset = currentPosition - position
-    return audioContext.currentTime - (positionOffset * beatDuration)
+  Readable.call(this, { objectMode: true })
+
+  this.context = audioContext
+  var processor = this._processor = audioContext.createScriptProcessor(512, 1, 1)
+  this._processor.onaudioprocess = onAudioProcess.bind(this)
+
+  var tempo = 120
+  var cycleLength = (1 / audioContext.sampleRate) * this._processor.bufferSize
+
+  this._state = {
+    lastTime: 0,
+    lastPosition: 0,
+    playing: false,
+    bpm: tempo,
+    beatDuration: 60 / tempo,
+    increment: (tempo / 60) * cycleLength,
+    cycleLength: cycleLength
   }
 
+  processor.connect(audioContext.destination)
+}
 
-  bopper.getCurrentPosition = function(){
-    return bopper.getPositionAt(audioContext.currentTime)
-  }
+inherits(Bopper, Readable)
 
-  bopper.setTempo = function(tempo){
-    var bps = tempo/60
-    beatDuration = 60/tempo
-    increment = bps * cycleLength
+var proto = Bopper.prototype
 
-    bpm = tempo
-    bopper.emit('tempo', bpm)
-  }
+proto._read = function(){
+  this._state.waiting = true
+}
 
-  bopper.getTempo = function(){
-    return bpm
-  }
+proto.start = function(){
+  this._state.playing = true
+}
 
-  bopper.setSpeed = function(multiplier){
-    multiplier = multiplier || 0
+proto.stop = function(){
+  this._state.playing = false
+}
 
-    var tempo = bpm * multiplier
-    var bps = tempo/60
-    beatDuration = 60/tempo
-    increment = bps * cycleLength
-  }
+proto.setTempo = function(tempo){
+  var bps = tempo/60
+  var state = this._state
+  state.beatDuration = 60/tempo
+  state.increment = bps * state.cycleLength
+  state.bpm = tempo
+  this.emit('tempo', state.bpm)
+}
 
-  bopper.isPlaying = function(){
-    return playing
-  }
+proto.getTempo = function(){
+  return this._state.bpm
+}
 
-  bopper.restart = function(mod){
-    if (mod){
-      var position = nextPosition
-      var bar = Math.floor(position / mod)
-      nextPosition = (bar * mod) + mod
-    } else {
-      nextPosition = 0
-    }
-    playing = true
-  }
+proto.isPlaying = function(){
+  return this._state.playing
+}
 
-  bopper.stop = function(){
-    playing = false
-  }
+proto.setPosition = function(position){
+  this._state.lastPosition = parseFloat(position) - this._state.increment
+}
 
-  bopper.start = function(){
-    playing = true
-  }
+proto.setSpeed = function(multiplier){
+  var state = this._state
 
+  multiplier = parseFloat(multiplier) || 0
 
-  var processor = audioContext.createScriptProcessor(512, 1, 1)
-  var cycleLength = (1 / audioContext.sampleRate) * processor.bufferSize
+  var tempo = bpm * multiplier
+  var bps = tempo/60
+
+  state.beatDuration = 60/tempo
+  state.increment = bps * cycleLength
+}
 
 
-  // transport
-  var playing = false
+proto.getPositionAt = function(time){
+  var state = this._state
+  return state.lastPosition - ((state.lastTime - time) * state.increment) - (state.increment*4)
+}
 
-  // set by tempo
-  var increment = 0
-  var beatLength = 0
+proto.getTimeAt = function(position){
+  var state = this._state
+  var positionOffset = this.getCurrentPosition() - position
+  return this.context.currentTime - (positionOffset * state.beatDuration)
+}
 
-  // set by process
-  var nextPosition = 0
-  var positionTime = 0
-  var lastFrame = -1
+proto.getCurrentPosition = function(){
+  return this.getPositionAt(this.context.currentTime)
+}
 
-
-  function schedule(time, from, to){
-    bopper.queue({
+proto._schedule = function(time, from, to){
+  var state = this._state
+  if (state.waiting){
+    this.push({
       from: from,
       to: to,
       time: time,
-      duration: (to - from) * beatDuration,
-      beatDuration: beatDuration
+      duration: (to - from) * state.beatDuration,
+      beatDuration: state.beatDuration
     })
   }
+}
 
-  function getBeatsFromTime(time){
-    return time / beatDuration
+function onAudioProcess(e){
+  var state = this._state
+  var toTime = this.context.currentTime
+
+  if (state.playing){
+    var duration = toTime - state.lastTime
+    var length = duration / state.beatDuration
+    var position = state.lastPosition + length
+    this._schedule(state.lastTime + (state.cycleLength*4), state.lastPosition, position)
+    state.lastPosition = position
   }
 
-  var lastTime = 0
-  var lastPosition = 0
-  var offset = 0
-
-  processor.onaudioprocess = function(e){
-    var toTime = audioContext.currentTime
-    var length = getBeatsFromTime(toTime - lastTime)
-
-    if (playing){
-      var position = lastPosition + length
-      schedule(lastTime + (cycleLength*4), lastPosition, position)
-      lastPosition = position
-    }
-
-    lastTime = toTime
-  }
-
-  bopper.processor = processor
-  processor.connect(audioContext.destination)
-
-  bopper.setTempo(120)
-
-  return bopper
+  state.lastTime = toTime
 }
