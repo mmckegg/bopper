@@ -1,6 +1,6 @@
 {
   "name": "bopper",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Provides a streaming clock source for scheduling Web Audio events rhythmically",
   "main": "index.js",
   "scripts": {
