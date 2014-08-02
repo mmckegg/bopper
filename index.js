@@ -1,4 +1,6 @@
-var Readable = require('stream').Readable
+// var Readable = require('stream').Readable
+var Stream = require('stream')
+
 var inherits = require('util').inherits
 
 module.exports = Bopper
@@ -8,7 +10,10 @@ function Bopper(audioContext){
     return new Bopper(audioContext)
   }
 
-  Readable.call(this, { objectMode: true })
+  //Readable.call(this, { objectMode: true })
+  Stream.call(this)
+  this.readable = true
+  this.writable = false
 
   this.context = audioContext
   var processor = this._processor = audioContext.createScriptProcessor(512, 1, 1)
@@ -30,13 +35,14 @@ function Bopper(audioContext){
   processor.connect(audioContext.destination)
 }
 
-inherits(Bopper, Readable)
+//inherits(Bopper, Readable)
+inherits(Bopper, Stream)
 
 var proto = Bopper.prototype
 
-proto._read = function(){
-  this._state.waiting = true
-}
+//proto._read = function(){
+//  this._state.waiting = true
+//}
 
 proto.start = function(){
   this.lastTime = this.context.currentTime - this._state.cycleLength
@@ -98,15 +104,16 @@ proto.getCurrentPosition = function(){
 
 proto._schedule = function(time, from, to){
   var state = this._state
-  if (state.waiting){
-    this.push({
+  //if (state.waiting){
+    //state.waiting = false
+    this.emit('data', {
       from: from,
       to: to,
       time: time,
       duration: (to - from) * state.beatDuration,
       beatDuration: state.beatDuration
     })
-  }
+  //}
 }
 
 function onAudioProcess(e){
