@@ -39,6 +39,7 @@ proto._read = function(){
 }
 
 proto.start = function(){
+  this.lastTime = this.context.currentTime - this._state.cycleLength
   this._state.playing = true
 }
 
@@ -64,7 +65,7 @@ proto.isPlaying = function(){
 }
 
 proto.setPosition = function(position){
-  this._state.lastPosition = parseFloat(position) - this._state.increment
+  this._state.lastPosition = parseFloat(position) + (this._state.increment * 4)
 }
 
 proto.setSpeed = function(multiplier){
@@ -116,7 +117,7 @@ function onAudioProcess(e){
     var duration = toTime - state.lastTime
     var length = duration / state.beatDuration
     var position = state.lastPosition + length
-    this._schedule(state.lastTime + (state.cycleLength*4), state.lastPosition, position)
+    this._schedule(toTime + (state.cycleLength*2), state.lastPosition, position)
     state.lastPosition = position
   }
 
