@@ -3,6 +3,8 @@ bopper
 
 A streaming clock source for scheduling Web Audio events rhythmically.
 
+Use with [ditty](https://github.com/mmckegg/ditty) if you want to create loop sequences.
+
 ## Install
 
 ```bash
