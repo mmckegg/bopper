@@ -15,6 +15,9 @@ $ npm install bopper
 var audioContext = new AudioContext()
 var bopper = require('bopper')(audioContext)
 
+// save a reference on the window to avoid garbage collection
+window.scheduler = bopper
+
 var playback = [
   {position: 0, length: 0.1},
   {position: 1, length: 0.1},

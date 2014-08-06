@@ -1,6 +1,9 @@
 var audioContext = new AudioContext()
 var bopper = require('./')(audioContext)
 
+// save a reference on the window to avoid garbage collection
+window.scheduler = bopper
+
 var playback = [
   {position: 0, length: 0.1},
   {position: 1, length: 0.1},
