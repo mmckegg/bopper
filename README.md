@@ -11,6 +11,8 @@ Use with [ditty](https://github.com/mmckegg/ditty) if you want to create loop se
 $ npm install bopper
 ```
 
+Require into your browser bundle with [browserify](http://browserify.org/).
+
 ## Example
 
 ```js
