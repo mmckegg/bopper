@@ -16,8 +16,8 @@ function Bopper(audioContext){
   this.writable = false
 
   this.context = audioContext
-  var processor = this._processor = audioContext.createScriptProcessor(512, 1, 1)
-  this._processor.onaudioprocess = onAudioProcess.bind(this)
+  var processor = this._processor = audioContext.createScriptProcessor(256, 1, 1)
+  this._processor.onaudioprocess = bopperTick.bind(this)
 
   var tempo = 120
   var cycleLength = (1 / audioContext.sampleRate) * this._processor.bufferSize
@@ -116,7 +116,7 @@ proto._schedule = function(time, from, to){
   //}
 }
 
-function onAudioProcess(e){
+function bopperTick(e){
   var state = this._state
   var toTime = this.context.currentTime
 
