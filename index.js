@@ -124,7 +124,7 @@ function bopperTick(e){
     var duration = toTime - state.lastTime
     var length = duration / state.beatDuration
     var position = state.lastPosition + length
-    this._schedule(toTime + (state.cycleLength*2), state.lastPosition, position)
+    this._schedule(state.lastTime + (state.cycleLength*8), state.lastPosition, position)
     state.lastPosition = position
   }
 
