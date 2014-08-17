@@ -106,13 +106,16 @@ proto._schedule = function(time, from, to){
   var state = this._state
   //if (state.waiting){
     //state.waiting = false
-    this.emit('data', {
-      from: from,
-      to: to,
-      time: time,
-      duration: (to - from) * state.beatDuration,
-      beatDuration: state.beatDuration
-    })
+    var duration = (to - from) * state.beatDuration
+    if (time + state.cycleLength/2 >= this.context.currentTime){
+      this.emit('data', {
+        from: from,
+        to: to,
+        time: time,
+        duration: duration,
+        beatDuration: state.beatDuration
+      })
+    }
   //}
 }
 
