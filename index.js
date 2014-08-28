@@ -79,11 +79,11 @@ proto.setSpeed = function(multiplier){
 
   multiplier = parseFloat(multiplier) || 0
 
-  var tempo = bpm * multiplier
+  var tempo = state.bpm * multiplier
   var bps = tempo/60
 
   state.beatDuration = 60/tempo
-  state.increment = bps * cycleLength
+  state.increment = bps * state.cycleLength
 }
 
 
