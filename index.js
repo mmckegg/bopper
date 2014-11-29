@@ -71,7 +71,7 @@ proto.isPlaying = function(){
 }
 
 proto.setPosition = function(position){
-  this._state.lastPosition = parseFloat(position) + (this._state.increment * 4)
+  this._state.lastPosition = parseFloat(position) + (this._state.increment * 12)
 }
 
 proto.setSpeed = function(multiplier){
@@ -89,7 +89,7 @@ proto.setSpeed = function(multiplier){
 
 proto.getPositionAt = function(time){
   var state = this._state
-  return state.lastPosition - ((state.lastTime - time) * state.increment) - (state.increment*4)
+  return state.lastPosition - ((state.lastTime - time) * state.increment) - (state.increment*12)
 }
 
 proto.getTimeAt = function(position){
