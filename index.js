@@ -102,6 +102,16 @@ proto.getCurrentPosition = function(){
   return this.getPositionAt(this.context.currentTime)
 }
 
+proto.getNextScheduleTime = function(){
+  var state = this._state
+  return state.lastTime + (state.cycleLength*12)
+}
+
+proto.getBeatDuration = function(){
+  var state = this._state
+  return state.beatDuration
+}
+
 proto._schedule = function(time, from, to){
   var state = this._state
   //if (state.waiting){
@@ -127,8 +137,10 @@ function bopperTick(e){
     var duration = toTime - state.lastTime
     var length = duration / state.beatDuration
     var position = state.lastPosition + length
-    this._schedule(state.lastTime + (state.cycleLength*12), state.lastPosition, position)
+    var lastPosition = state.lastPosition
     state.lastPosition = position
+    this._schedule(state.lastTime + (state.cycleLength*12), lastPosition, position)
+    
   }
 
   state.lastTime = toTime
