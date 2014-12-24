@@ -71,7 +71,7 @@ proto.isPlaying = function(){
 }
 
 proto.setPosition = function(position){
-  this._state.lastPosition = parseFloat(position) + (this._state.increment * 12)
+  this._state.lastPosition = parseFloat(position) + (this._state.increment * 16)
 }
 
 proto.setSpeed = function(multiplier){
@@ -104,7 +104,7 @@ proto.getCurrentPosition = function(){
 
 proto.getNextScheduleTime = function(){
   var state = this._state
-  return state.lastTime + (state.cycleLength*12)
+  return state.lastTime + (state.cycleLength*16)
 }
 
 proto.getBeatDuration = function(){
@@ -139,7 +139,7 @@ function bopperTick(e){
     var position = state.lastPosition + length
     var lastPosition = state.lastPosition
     state.lastPosition = position
-    this._schedule(state.lastTime + (state.cycleLength*12), lastPosition, position)
+    this._schedule(state.lastTime + (state.cycleLength*16), lastPosition, position)
     
   }
 
