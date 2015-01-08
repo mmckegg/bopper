@@ -21,7 +21,8 @@
     "web audio"
   ],
   "dependencies": {
-    "through": "~2.3.4"
+    "through": "~2.3.4",
+    "next-tick": "^0.2.2"
   },
   "author": "Matt McKegg",
   "license": "MIT"
