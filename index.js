@@ -1,5 +1,6 @@
 // var Readable = require('stream').Readable
 var Stream = require('stream')
+var nextTick = require('next-tick')
 
 var inherits = require('util').inherits
 
@@ -16,20 +17,25 @@ function Bopper(audioContext){
   this.writable = false
 
   this.context = audioContext
-  var processor = this._processor = audioContext.createScriptProcessor(256, 1, 1)
-  this._processor.onaudioprocess = bopperTick.bind(this)
+  var processor = this._processor = audioContext.createScriptProcessor(1024, 1, 1)
+
+  var handleTick = bopperTick.bind(this)
+  this._processor.onaudioprocess = function(){
+    nextTick(handleTick)
+  }
 
   var tempo = 120
   var cycleLength = (1 / audioContext.sampleRate) * this._processor.bufferSize
 
   this._state = {
-    lastTime: 0,
-    lastPosition: 0,
+    lastTo: 0,
+    lastEndTime: 0,
     playing: false,
     bpm: tempo,
     beatDuration: 60 / tempo,
     increment: (tempo / 60) * cycleLength,
-    cycleLength: cycleLength
+    cycleLength: cycleLength,
+    preCycle: 3
   }
 
   processor.connect(audioContext.destination)
@@ -45,7 +51,6 @@ var proto = Bopper.prototype
 //}
 
 proto.start = function(){
-  this.lastTime = this.context.currentTime - this._state.cycleLength
   this._state.playing = true
 }
 
@@ -71,7 +76,7 @@ proto.isPlaying = function(){
 }
 
 proto.setPosition = function(position){
-  this._state.lastPosition = parseFloat(position) + (this._state.increment * 16)
+  this._state.lastTo = parseFloat(position)
 }
 
 proto.setSpeed = function(multiplier){
@@ -89,7 +94,8 @@ proto.setSpeed = function(multiplier){
 
 proto.getPositionAt = function(time){
   var state = this._state
-  return state.lastPosition - ((state.lastTime - time) * state.increment) - (state.increment*12)
+  var delta = state.lastEndTime - time
+  return state.lastTo - (delta / state.beatDuration)
 }
 
 proto.getTimeAt = function(position){
@@ -104,7 +110,7 @@ proto.getCurrentPosition = function(){
 
 proto.getNextScheduleTime = function(){
   var state = this._state
-  return state.lastTime + (state.cycleLength*16)
+  return state.lastEndTime
 }
 
 proto.getBeatDuration = function(){
@@ -114,34 +120,32 @@ proto.getBeatDuration = function(){
 
 proto._schedule = function(time, from, to){
   var state = this._state
-  //if (state.waiting){
-    //state.waiting = false
-    var duration = (to - from) * state.beatDuration
-    if (time + state.cycleLength/2 >= this.context.currentTime){
-      this.emit('data', {
-        from: from,
-        to: to,
-        time: time,
-        duration: duration,
-        beatDuration: state.beatDuration
-      })
-    }
-  //}
+  var duration = (to - from) * state.beatDuration
+  this.emit('data', {
+    from: from,
+    to: to,
+    time: time,
+    duration: duration,
+    beatDuration: state.beatDuration
+  })
 }
 
 function bopperTick(e){
   var state = this._state
-  var toTime = this.context.currentTime
+
+  var endTime = this.context.currentTime + (state.cycleLength * state.preCycle)
+  var time = state.lastEndTime
+  state.lastEndTime = endTime
 
   if (state.playing){
-    var duration = toTime - state.lastTime
+    var duration = endTime - time
     var length = duration / state.beatDuration
-    var position = state.lastPosition + length
-    var lastPosition = state.lastPosition
-    state.lastPosition = position
-    this._schedule(state.lastTime + (state.cycleLength*16), lastPosition, position)
-    
+
+    var from = state.lastTo
+    var to = from + length
+    state.lastTo = to
+
+    this._schedule(time, from, to)
   }
 
-  state.lastTime = toTime
 }
