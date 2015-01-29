@@ -52,10 +52,12 @@ var proto = Bopper.prototype
 
 proto.start = function(){
   this._state.playing = true
+  this.emit('start')
 }
 
 proto.stop = function(){
   this._state.playing = false
+  this.emit('stop')
 }
 
 proto.setTempo = function(tempo){
