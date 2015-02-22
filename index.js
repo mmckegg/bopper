@@ -1,6 +1,4 @@
-// var Readable = require('stream').Readable
 var Stream = require('stream')
-var nextTick = require('next-tick')
 var Event = require('geval')
 
 var inherits = require('util').inherits
@@ -14,7 +12,6 @@ function Bopper(audioContext){
 
   var self = this
 
-  //Readable.call(this, { objectMode: true })
   Stream.call(this)
   this.readable = true
   this.writable = false
@@ -23,9 +20,7 @@ function Bopper(audioContext){
   var processor = this._processor = audioContext.createScriptProcessor(1024, 1, 1)
 
   var handleTick = bopperTick.bind(this)
-  this._processor.onaudioprocess = function(){
-    nextTick(handleTick)
-  }
+  this._processor.onaudioprocess = handleTick
 
   var tempo = 120
   var cycleLength = (1 / audioContext.sampleRate) * this._processor.bufferSize
@@ -38,7 +33,7 @@ function Bopper(audioContext){
     beatDuration: 60 / tempo,
     increment: (tempo / 60) * cycleLength,
     cycleLength: cycleLength,
-    preCycle: 3
+    preCycle: 3,
   }
 
   // frp version
@@ -49,14 +44,10 @@ function Bopper(audioContext){
   processor.connect(audioContext.destination)
 }
 
-//inherits(Bopper, Readable)
 inherits(Bopper, Stream)
 
 var proto = Bopper.prototype
 
-//proto._read = function(){
-//  this._state.waiting = true
-//}
 
 proto.start = function(){
   this._state.playing = true
@@ -127,6 +118,7 @@ proto.getBeatDuration = function(){
   var state = this._state
   return state.beatDuration
 }
+
 
 proto._schedule = function(time, from, to){
   var state = this._state

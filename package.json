@@ -21,8 +21,7 @@
     "web audio"
   ],
   "dependencies": {
-    "geval": "^2.1.1",
-    "next-tick": "^0.2.2"
+    "geval": "^2.1.1"
   },
   "author": "Matt McKegg",
   "license": "MIT"
