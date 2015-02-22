@@ -1,6 +1,7 @@
 // var Readable = require('stream').Readable
 var Stream = require('stream')
 var nextTick = require('next-tick')
+var Event = require('geval')
 
 var inherits = require('util').inherits
 
@@ -10,6 +11,8 @@ function Bopper(audioContext){
   if (!(this instanceof Bopper)){
     return new Bopper(audioContext)
   }
+
+  var self = this
 
   //Readable.call(this, { objectMode: true })
   Stream.call(this)
@@ -37,6 +40,11 @@ function Bopper(audioContext){
     cycleLength: cycleLength,
     preCycle: 3
   }
+
+  // frp version
+  this.onSchedule = Event(function(broadcast){
+    self.on('data', broadcast)
+  })
 
   processor.connect(audioContext.destination)
 }

@@ -21,7 +21,7 @@
     "web audio"
   ],
   "dependencies": {
-    "through": "~2.3.4",
+    "geval": "^2.1.1",
     "next-tick": "^0.2.2"
   },
   "author": "Matt McKegg",
