@@ -142,6 +142,7 @@ proto._schedule = function(time, from, to){
 
 function bopperTick(e){
   var state = this._state
+  var currentTime = this.context.currentTime
 
   var endTime = this.context.currentTime + (state.cycleLength * state.preCycle)
   var time = state.lastEndTime
@@ -155,7 +156,10 @@ function bopperTick(e){
     var to = from + length
     state.lastTo = to
 
-    this._schedule(time, from, to)
+    // skip if getting behind
+    if ((currentTime - (state.cycleLength * state.preCycle)) < time){
+      this._schedule(time, from, to)
+    }
   }
 
 }
