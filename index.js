@@ -17,7 +17,7 @@ function Bopper(audioContext){
   this.writable = false
 
   this.context = audioContext
-  var processor = this._processor = audioContext.createScriptProcessor(1024, 1, 1)
+  var processor = this._processor = audioContext.createScriptProcessor(512, 1, 1)
 
   var handleTick = bopperTick.bind(this)
   this._processor.onaudioprocess = handleTick
@@ -33,7 +33,7 @@ function Bopper(audioContext){
     beatDuration: 60 / tempo,
     increment: (tempo / 60) * cycleLength,
     cycleLength: cycleLength,
-    preCycle: 3.5,
+    preCycle: 5,
   }
 
   // frp version
@@ -149,7 +149,7 @@ function bopperTick(e){
     state.lastTo = to
 
     // skip if getting behind
-    if ((currentTime - (state.cycleLength * state.preCycle)) < time){
+    if ((currentTime - (state.cycleLength*2)) < time){
       this._schedule(time, from, to)
     }
   }
