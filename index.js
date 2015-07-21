@@ -17,7 +17,7 @@ function Bopper(audioContext){
   this.writable = false
 
   this.context = audioContext
-  var processor = this._processor = audioContext.createScriptProcessor(512, 1, 1)
+  var processor = this._processor = audioContext.createScriptProcessor(256, 1, 1)
 
   var handleTick = bopperTick.bind(this)
   this._processor.onaudioprocess = handleTick
@@ -33,7 +33,7 @@ function Bopper(audioContext){
     beatDuration: 60 / tempo,
     increment: (tempo / 60) * cycleLength,
     cycleLength: cycleLength,
-    preCycle: 5,
+    preCycle: 2,
   }
 
   // frp version
@@ -57,6 +57,33 @@ proto.start = function(){
 proto.stop = function(){
   this._state.playing = false
   this.emit('stop')
+}
+
+proto.schedule = function(duration) {
+  var state = this._state
+  var currentTime = this.context.currentTime
+
+  var endTime = this.context.currentTime + duration
+  var time = state.lastEndTime
+
+  if (endTime >= time) {
+    state.lastEndTime = endTime
+
+    if (state.playing){
+      var duration = endTime - time
+      var length = duration / state.beatDuration
+
+      var from = state.lastTo
+      var to = from + length
+      state.lastTo = to
+
+      // skip if getting behind
+      //if ((currentTime - (state.cycleLength*3)) < time){
+        this._schedule(time, from, to)
+      //}
+    }
+  }
+  
 }
 
 proto.setTempo = function(tempo){
@@ -134,24 +161,5 @@ proto._schedule = function(time, from, to){
 
 function bopperTick(e){
   var state = this._state
-  var currentTime = this.context.currentTime
-
-  var endTime = this.context.currentTime + (state.cycleLength * state.preCycle)
-  var time = state.lastEndTime
-  state.lastEndTime = endTime
-
-  if (state.playing){
-    var duration = endTime - time
-    var length = duration / state.beatDuration
-
-    var from = state.lastTo
-    var to = from + length
-    state.lastTo = to
-
-    // skip if getting behind
-    if ((currentTime - (state.cycleLength*2)) < time){
-      this._schedule(time, from, to)
-    }
-  }
-
+  this.schedule(state.cycleLength * state.preCycle)
 }
