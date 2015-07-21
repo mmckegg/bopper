@@ -17,7 +17,7 @@ function Bopper(audioContext){
   this.writable = false
 
   this.context = audioContext
-  var processor = this._processor = audioContext.createScriptProcessor(256, 1, 1)
+  var processor = this._processor = audioContext.createScriptProcessor(512, 1, 1)
 
   var handleTick = bopperTick.bind(this)
   this._processor.onaudioprocess = handleTick
