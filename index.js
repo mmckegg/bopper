@@ -33,7 +33,7 @@ function Bopper(audioContext){
     beatDuration: 60 / tempo,
     increment: (tempo / 60) * cycleLength,
     cycleLength: cycleLength,
-    preCycle: 2,
+    preCycle: 4,
   }
 
   // frp version
