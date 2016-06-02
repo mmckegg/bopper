@@ -1,5 +1,6 @@
 var Stream = require('stream')
 var Event = require('geval')
+var workerTimer = require('worker-timer')
 
 var inherits = require('util').inherits
 
@@ -17,13 +18,11 @@ function Bopper(audioContext){
   this.writable = false
 
   this.context = audioContext
-  var processor = this._processor = audioContext.createScriptProcessor(512, 1, 1)
 
-  var handleTick = bopperTick.bind(this)
-  this._processor.onaudioprocess = handleTick
+  var cycleLength = (1 / audioContext.sampleRate) * 512
+  workerTimer.setInterval(bopperTick.bind(this), cycleLength * 1000)
 
   var tempo = 120
-  var cycleLength = (1 / audioContext.sampleRate) * this._processor.bufferSize
 
   this._state = {
     lastTo: 0,
@@ -33,15 +32,13 @@ function Bopper(audioContext){
     beatDuration: 60 / tempo,
     increment: (tempo / 60) * cycleLength,
     cycleLength: cycleLength,
-    preCycle: 4,
+    preCycle: 3
   }
 
   // frp version
   this.onSchedule = Event(function(broadcast){
     self.on('data', broadcast)
   })
-
-  processor.connect(audioContext.destination)
 }
 
 inherits(Bopper, Stream)
@@ -83,7 +80,7 @@ proto.schedule = function(duration) {
       //}
     }
   }
-  
+
 }
 
 proto.setTempo = function(tempo){
@@ -159,7 +156,7 @@ proto._schedule = function(time, from, to){
   })
 }
 
-function bopperTick(e){
+function bopperTick () {
   var state = this._state
   this.schedule(state.cycleLength * state.preCycle)
 }
