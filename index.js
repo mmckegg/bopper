@@ -19,7 +19,7 @@ function Bopper(audioContext){
 
   this.context = audioContext
 
-  var cycleLength = (1 / audioContext.sampleRate) * 512
+  var cycleLength = (1 / audioContext.sampleRate) * 1024
   workerTimer.setInterval(bopperTick.bind(this), cycleLength * 1000)
 
   var tempo = 120
@@ -32,7 +32,7 @@ function Bopper(audioContext){
     beatDuration: 60 / tempo,
     increment: (tempo / 60) * cycleLength,
     cycleLength: cycleLength,
-    preCycle: 3
+    preCycle: 2
   }
 
   // frp version
