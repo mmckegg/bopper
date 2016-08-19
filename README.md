@@ -65,3 +65,7 @@ bopper.start()
 ```
 
 To run the example `npm install -g beefy` then `beefy example.js` and navigate to `http://localhost:9966/`
+
+## License
+
+MIT
